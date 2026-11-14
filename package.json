@@ -1,0 +1,1 @@
+{"description":"ProofCheck — verify-before-you-believe agent for zkVerify Agent Games Wildcard track","engines":{"node":">=22"},"license":"MIT","main":"server.mjs","name":"proofcheck-wildcard-agent","scripts":{"start":"node server.mjs"},"type":"module","version":"0.1.0"}

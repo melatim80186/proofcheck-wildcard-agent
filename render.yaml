@@ -1,0 +1,14 @@
+# Render free web service — deploys server.mjs as-is, HTTPS included.
+# Free tier spins down after ~15 min idle; first request after sleep takes
+# ~30-60s to wake. If the Agent Games preflight times out on a cold start,
+# hit /health once to wake it, then run preflight again.
+services:
+  - type: web
+    name: proofcheck-wildcard
+    env: node
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: node server.mjs
+    envVars:
+      - key: AGENT_HMAC_SECRET
+        sync: false # paste the 32-byte secret from the Agent Games dashboard

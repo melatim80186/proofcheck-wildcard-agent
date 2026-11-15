@@ -19,10 +19,10 @@
 //   GET  /health   preflight health check
 //   POST /verify   { type, ... } -> { verdict, evidence, checked_at }
 //
-// Response signing (align header names to the dashboard spec at registration;
-// the signing itself lives in signBody() so it is a 2-line change):
-//   x-agent-timestamp: <unix seconds>
-//   x-agent-signature: sha256=<hmac-sha256(secret, timestamp + "." + body)>
+// Response signing (official build guide https://agentgames.zkverify.io/build):
+//   x-agent-games-signature: sha256=<hmac-sha256(secret, raw body)>
+// Same format as GateCheck. If the dashboard expects bare hex, this is a
+// 1-line change in signBody().
 import http from 'node:http';
 import crypto from 'node:crypto';
 
@@ -80,9 +80,8 @@ async function ethCall(to, data) {
 
 function signBody(body) {
   if (!HMAC_SECRET) return {};
-  const ts = String(Math.floor(Date.now() / 1000));
-  const sig = crypto.createHmac('sha256', HMAC_SECRET).update(`${ts}.${body}`).digest('hex');
-  return { 'x-agent-timestamp': ts, 'x-agent-signature': `sha256=${sig}` };
+  const sig = crypto.createHmac('sha256', HMAC_SECRET).update(body).digest('hex');
+  return { 'x-agent-games-signature': `sha256=${sig}` };
 }
 
 function send(res, status, obj) {

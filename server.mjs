@@ -20,9 +20,10 @@
 //   POST /verify   { type, ... } -> { verdict, evidence, checked_at }
 //
 // Response signing (official build guide https://agentgames.zkverify.io/build):
-//   x-agent-games-signature: sha256=<hmac-sha256(secret, raw body)>
-// Same format as GateCheck. If the dashboard expects bare hex, this is a
-// 1-line change in signBody().
+//   x-agent-games-signature: <hmac-sha256(secret, raw body)> as bare
+//   lowercase hex, NO prefix. The platform hex-decodes the header value, so
+//   a "sha256=" prefix makes every signature invalid — proven by our sibling
+//   Gatekeeper agent's preflight (2026-11-18). Same format as GateCheck.
 import http from 'node:http';
 import crypto from 'node:crypto';
 
@@ -81,7 +82,7 @@ async function ethCall(to, data) {
 function signBody(body) {
   if (!HMAC_SECRET) return {};
   const sig = crypto.createHmac('sha256', HMAC_SECRET).update(body).digest('hex');
-  return { 'x-agent-games-signature': `sha256=${sig}` };
+  return { 'x-agent-games-signature': sig };
 }
 
 function send(res, status, obj) {
